@@ -1325,8 +1325,10 @@
           body: JSON.stringify({ text: extractedText, filename: currentFilename, apiKey: apiKey, provider: getCurrentProvider(), model: modelInput ? modelInput.value.trim() : '' })
         })
         .then(function(response) {
-          if (!response.ok) throw new Error('Analysis request failed');
-          return response.json();
+          return response.json().then(function(data) {
+            if (!response.ok) throw new Error(data.error || 'Analysis request failed');
+            return data;
+          });
         })
         .then(function(data) {
           if (!data.success) throw new Error(data.error || 'Analysis failed');
@@ -1423,8 +1425,10 @@
           body: JSON.stringify({ text: extractedText, issues: currentIssues, filename: currentFilename, apiKey: apiKey, provider: getCurrentProvider(), model: modelInput ? modelInput.value.trim() : '' })
         })
         .then(function(response) {
-          if (!response.ok) throw new Error('Generation request failed');
-          return response.json();
+          return response.json().then(function(data) {
+            if (!response.ok) throw new Error(data.error || 'Generation request failed');
+            return data;
+          });
         })
         .then(function(data) {
           if (!data.success) throw new Error(data.error || 'Generation failed');

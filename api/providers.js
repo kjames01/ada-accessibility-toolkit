@@ -78,7 +78,7 @@ async function callProvider({ provider, model, apiKey, systemPrompt, userMessage
     const client = new OpenAI({ apiKey: apiKey });
     const response = await client.chat.completions.create({
       model: model,
-      max_tokens: maxTokens,
+      max_completion_tokens: maxTokens,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userMessage }

@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "api/analyze.js": {
+      "maxDuration": 120
+    },
+    "api/generate.js": {
+      "maxDuration": 120
+    }
+  }
+}

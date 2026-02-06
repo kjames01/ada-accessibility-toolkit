@@ -1366,6 +1366,26 @@ button {
   gap: var(--space-lg);
 }
 
+.api-key-section {
+  padding: var(--space-lg);
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+}
+
+.api-key-input-row {
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.api-key-input {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+}
+
 .drop-zone {
   display: flex;
   flex-direction: column;

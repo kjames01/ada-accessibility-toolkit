@@ -1025,8 +1025,47 @@
     var previewSource = $('#analyzer-preview-source');
     var downloadBtn = $('#analyzer-download-btn');
     var copyBtn = $('#analyzer-copy-btn');
+    var apiKeyInput = $('#analyzer-api-key');
+    var toggleKeyBtn = $('#analyzer-toggle-key');
 
     if (!dropZone) return;
+
+    // Load saved API key from localStorage
+    var API_KEY_STORAGE = 'ada-toolkit-api-key';
+    if (apiKeyInput) {
+      try {
+        var savedKey = localStorage.getItem(API_KEY_STORAGE);
+        if (savedKey) apiKeyInput.value = savedKey;
+      } catch (e) { /* ignore */ }
+
+      apiKeyInput.addEventListener('input', function() {
+        try {
+          if (apiKeyInput.value) {
+            localStorage.setItem(API_KEY_STORAGE, apiKeyInput.value);
+          } else {
+            localStorage.removeItem(API_KEY_STORAGE);
+          }
+        } catch (e) { /* ignore */ }
+      });
+    }
+
+    // Toggle API key visibility
+    if (toggleKeyBtn && apiKeyInput) {
+      toggleKeyBtn.addEventListener('click', function() {
+        var isPassword = apiKeyInput.type === 'password';
+        apiKeyInput.type = isPassword ? 'text' : 'password';
+        toggleKeyBtn.setAttribute('aria-label', isPassword ? 'Hide API key' : 'Show API key');
+        toggleKeyBtn.setAttribute('title', isPassword ? 'Hide API key' : 'Show API key');
+        var eyeIcon = $('.icon-eye', toggleKeyBtn);
+        var eyeOffIcon = $('.icon-eye-off', toggleKeyBtn);
+        if (eyeIcon) eyeIcon.style.display = isPassword ? 'none' : '';
+        if (eyeOffIcon) eyeOffIcon.style.display = isPassword ? '' : 'none';
+      });
+    }
+
+    function getApiKey() {
+      return apiKeyInput ? apiKeyInput.value.trim() : '';
+    }
 
     // State
     var extractedText = '';
@@ -1167,6 +1206,13 @@
     // Analyze button
     if (analyzeBtn) {
       analyzeBtn.addEventListener('click', function() {
+        var apiKey = getApiKey();
+        if (!apiKey) {
+          announce('Please enter your Anthropic API key before analyzing.');
+          if (apiKeyInput) apiKeyInput.focus();
+          return;
+        }
+
         analyzeBtn.disabled = true;
         if (loading) loading.removeAttribute('hidden');
         if (loadingText) loadingText.textContent = 'Analyzing document for accessibility issues...';
@@ -1177,7 +1223,7 @@
         fetch('/api/analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: extractedText, filename: currentFilename })
+          body: JSON.stringify({ text: extractedText, filename: currentFilename, apiKey: apiKey })
         })
         .then(function(response) {
           if (!response.ok) throw new Error('Analysis request failed');
@@ -1261,6 +1307,13 @@
     // Generate button
     if (generateBtn) {
       generateBtn.addEventListener('click', function() {
+        var apiKey = getApiKey();
+        if (!apiKey) {
+          announce('Please enter your Anthropic API key before generating.');
+          if (apiKeyInput) apiKeyInput.focus();
+          return;
+        }
+
         generateBtn.disabled = true;
         if (generateLoading) generateLoading.removeAttribute('hidden');
         if (previewSection) previewSection.setAttribute('hidden', '');
@@ -1268,7 +1321,7 @@
         fetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: extractedText, issues: currentIssues, filename: currentFilename })
+          body: JSON.stringify({ text: extractedText, issues: currentIssues, filename: currentFilename, apiKey: apiKey })
         })
         .then(function(response) {
           if (!response.ok) throw new Error('Generation request failed');

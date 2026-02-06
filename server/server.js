@@ -4,7 +4,6 @@ const path = require('path');
 require('dotenv').config();
 
 const Anthropic = require('@anthropic-ai/sdk');
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -108,11 +107,18 @@ Return ONLY the complete HTML document, no additional explanation or markdown fo
 // --- POST /api/analyze ---
 app.post('/api/analyze', async (req, res) => {
   try {
-    const { text, filename } = req.body;
+    const { text, filename, apiKey } = req.body;
+    const key = apiKey || process.env.ANTHROPIC_API_KEY;
+
+    if (!key) {
+      return res.status(400).json({ success: false, error: 'API key is required. Please enter your Anthropic API key.' });
+    }
 
     if (!text) {
       return res.status(400).json({ success: false, error: 'No text provided for analysis.' });
     }
+
+    const client = new Anthropic({ apiKey: key });
 
     // Cap input at 100K characters
     const cappedText = text.substring(0, 100000);
@@ -163,11 +169,18 @@ ${cappedText}`;
 // --- POST /api/generate ---
 app.post('/api/generate', async (req, res) => {
   try {
-    const { text, issues, filename } = req.body;
+    const { text, issues, filename, apiKey } = req.body;
+    const key = apiKey || process.env.ANTHROPIC_API_KEY;
+
+    if (!key) {
+      return res.status(400).json({ success: false, error: 'API key is required. Please enter your Anthropic API key.' });
+    }
 
     if (!text) {
       return res.status(400).json({ success: false, error: 'No text provided for generation.' });
     }
+
+    const client = new Anthropic({ apiKey: key });
 
     const userMessage = `Convert the following document into an accessible HTML5 document, addressing the accessibility issues listed below.
 

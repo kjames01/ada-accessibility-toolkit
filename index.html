@@ -386,10 +386,25 @@
         <p class="page-subtitle">Drag and drop a PDF file to analyze it for ADA compliance issues and generate an accessible HTML alternative.</p>
 
         <div class="analyzer-layout">
-          <!-- API Key -->
+          <!-- Provider Config -->
           <div class="api-key-section" id="analyzer-api-key-section">
-            <div class="input-group">
-              <label for="analyzer-api-key" class="input-label">Anthropic API Key</label>
+            <div class="provider-config-row">
+              <div class="input-group">
+                <label for="analyzer-provider" class="input-label">AI Provider</label>
+                <select id="analyzer-provider" class="select-input">
+                  <option value="anthropic">Anthropic (Claude)</option>
+                  <option value="openai">OpenAI (GPT)</option>
+                  <option value="gemini">Google Gemini</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label for="analyzer-model" class="input-label">Model</label>
+                <input type="text" id="analyzer-model" class="text-input" value="claude-opus-4-6" placeholder="claude-opus-4-6" aria-describedby="model-hint">
+                <span id="model-hint" class="input-hint">Default model for selected provider. You can override.</span>
+              </div>
+            </div>
+            <div class="input-group" style="margin-top: var(--space-md);">
+              <label for="analyzer-api-key" id="analyzer-api-key-label" class="input-label">Anthropic API Key</label>
               <div class="api-key-input-row">
                 <input type="password" id="analyzer-api-key" class="text-input api-key-input" placeholder="sk-ant-..." aria-describedby="api-key-hint">
                 <button type="button" id="analyzer-toggle-key" class="btn-icon btn-sm" aria-label="Show API key" title="Show API key">

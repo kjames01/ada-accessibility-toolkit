@@ -1030,22 +1030,121 @@
 
     if (!dropZone) return;
 
-    // Load saved API key from localStorage
-    var API_KEY_STORAGE = 'ada-toolkit-api-key';
-    if (apiKeyInput) {
-      try {
-        var savedKey = localStorage.getItem(API_KEY_STORAGE);
-        if (savedKey) apiKeyInput.value = savedKey;
-      } catch (e) { /* ignore */ }
+    // Provider defaults and new DOM refs
+    var PROVIDER_DEFAULTS = {
+      anthropic: { model: 'claude-opus-4-6', label: 'Anthropic', placeholder: 'sk-ant-...' },
+      openai: { model: 'gpt-4o', label: 'OpenAI', placeholder: 'sk-...' },
+      gemini: { model: 'gemini-2.0-flash', label: 'Google Gemini', placeholder: 'AIza...' }
+    };
 
-      apiKeyInput.addEventListener('input', function() {
+    var providerSelect = $('#analyzer-provider');
+    var modelInput = $('#analyzer-model');
+    var apiKeyLabel = $('#analyzer-api-key-label');
+
+    // Per-provider API key storage
+    var PROVIDER_STORAGE_KEY = 'ada-toolkit-provider';
+    var MODEL_STORAGE_KEY = 'ada-toolkit-model';
+
+    function getProviderKeyName(provider) {
+      return 'ada-toolkit-api-key-' + provider;
+    }
+
+    function getCurrentProvider() {
+      return providerSelect ? providerSelect.value : 'anthropic';
+    }
+
+    function loadProviderState() {
+      try {
+        var savedProvider = localStorage.getItem(PROVIDER_STORAGE_KEY);
+        if (savedProvider && providerSelect) {
+          providerSelect.value = savedProvider;
+        }
+        var savedModel = localStorage.getItem(MODEL_STORAGE_KEY);
+        if (savedModel && modelInput) {
+          modelInput.value = savedModel;
+        }
+      } catch (e) { /* ignore */ }
+    }
+
+    function saveApiKeyForProvider(provider, key) {
+      try {
+        if (key) {
+          localStorage.setItem(getProviderKeyName(provider), key);
+        } else {
+          localStorage.removeItem(getProviderKeyName(provider));
+        }
+      } catch (e) { /* ignore */ }
+    }
+
+    function loadApiKeyForProvider(provider) {
+      try {
+        var key = localStorage.getItem(getProviderKeyName(provider));
+        // Fallback to legacy key for anthropic
+        if (!key && provider === 'anthropic') {
+          key = localStorage.getItem('ada-toolkit-api-key');
+        }
+        return key || '';
+      } catch (e) { return ''; }
+    }
+
+    function updateProviderUI() {
+      var provider = getCurrentProvider();
+      var defaults = PROVIDER_DEFAULTS[provider];
+      if (!defaults) return;
+
+      // Update API key label
+      if (apiKeyLabel) {
+        apiKeyLabel.textContent = defaults.label + ' API Key';
+      }
+
+      // Update API key placeholder
+      if (apiKeyInput) {
+        apiKeyInput.placeholder = defaults.placeholder;
+        apiKeyInput.value = loadApiKeyForProvider(provider);
+      }
+
+      // Update model if it's still showing another provider's default
+      if (modelInput) {
+        var currentModel = modelInput.value.trim();
+        var isOtherDefault = Object.keys(PROVIDER_DEFAULTS).some(function(p) {
+          return p !== provider && PROVIDER_DEFAULTS[p].model === currentModel;
+        });
+        if (!currentModel || isOtherDefault) {
+          modelInput.value = defaults.model;
+        }
+      }
+
+      // Save provider choice
+      try {
+        localStorage.setItem(PROVIDER_STORAGE_KEY, provider);
+      } catch (e) { /* ignore */ }
+    }
+
+    // Load saved state and set up UI
+    loadProviderState();
+    updateProviderUI();
+
+    // Provider change handler
+    if (providerSelect) {
+      providerSelect.addEventListener('change', function() {
+        updateProviderUI();
+        announce('Switched to ' + PROVIDER_DEFAULTS[getCurrentProvider()].label);
+      });
+    }
+
+    // Model change handler — save to localStorage
+    if (modelInput) {
+      modelInput.addEventListener('input', function() {
         try {
-          if (apiKeyInput.value) {
-            localStorage.setItem(API_KEY_STORAGE, apiKeyInput.value);
-          } else {
-            localStorage.removeItem(API_KEY_STORAGE);
-          }
+          localStorage.setItem(MODEL_STORAGE_KEY, modelInput.value);
         } catch (e) { /* ignore */ }
+      });
+    }
+
+    // API key input handler — save per-provider
+    if (apiKeyInput) {
+      apiKeyInput.addEventListener('input', function() {
+        saveApiKeyForProvider(getCurrentProvider(), apiKeyInput.value);
       });
     }
 
@@ -1208,7 +1307,7 @@
       analyzeBtn.addEventListener('click', function() {
         var apiKey = getApiKey();
         if (!apiKey) {
-          announce('Please enter your Anthropic API key before analyzing.');
+          announce('Please enter your ' + PROVIDER_DEFAULTS[getCurrentProvider()].label + ' API key before analyzing.');
           if (apiKeyInput) apiKeyInput.focus();
           return;
         }
@@ -1223,7 +1322,7 @@
         fetch('/api/analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: extractedText, filename: currentFilename, apiKey: apiKey })
+          body: JSON.stringify({ text: extractedText, filename: currentFilename, apiKey: apiKey, provider: getCurrentProvider(), model: modelInput ? modelInput.value.trim() : '' })
         })
         .then(function(response) {
           if (!response.ok) throw new Error('Analysis request failed');
@@ -1309,7 +1408,7 @@
       generateBtn.addEventListener('click', function() {
         var apiKey = getApiKey();
         if (!apiKey) {
-          announce('Please enter your Anthropic API key before generating.');
+          announce('Please enter your ' + PROVIDER_DEFAULTS[getCurrentProvider()].label + ' API key before generating.');
           if (apiKeyInput) apiKeyInput.focus();
           return;
         }
@@ -1321,7 +1420,7 @@
         fetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: extractedText, issues: currentIssues, filename: currentFilename, apiKey: apiKey })
+          body: JSON.stringify({ text: extractedText, issues: currentIssues, filename: currentFilename, apiKey: apiKey, provider: getCurrentProvider(), model: modelInput ? modelInput.value.trim() : '' })
         })
         .then(function(response) {
           if (!response.ok) throw new Error('Generation request failed');

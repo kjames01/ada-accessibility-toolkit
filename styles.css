@@ -1386,6 +1386,23 @@ button {
   font-size: var(--font-size-sm);
 }
 
+.provider-config-row {
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-lg);
+  align-items: flex-start;
+}
+
+.provider-config-row .input-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.provider-config-row .select-input,
+.provider-config-row .text-input {
+  width: 100%;
+}
+
 .drop-zone {
   display: flex;
   flex-direction: column;
@@ -1617,6 +1634,8 @@ button {
   .compliance-grid {
     grid-template-columns: 1fr;
   }
+
+  .provider-config-row { flex-direction: column; }
 
   /* Typography layout single column */
   .typo-layout {

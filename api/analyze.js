@@ -1,39 +1,4 @@
-const Anthropic = require('@anthropic-ai/sdk');
-
-const ANALYSIS_SYSTEM_PROMPT = `You are an expert ADA compliance and WCAG 2.1 accessibility auditor. Analyze the provided document text for accessibility issues.
-
-Return your analysis as valid JSON with this exact structure:
-{
-  "summary": {
-    "errorCount": <number>,
-    "warningCount": <number>,
-    "infoCount": <number>,
-    "overallScore": <number 0-100>
-  },
-  "issues": [
-    {
-      "severity": "error" | "warning" | "info",
-      "wcagCriteria": "<WCAG criterion, e.g. 1.1.1>",
-      "title": "<short title>",
-      "description": "<detailed description of the issue>",
-      "location": "<where in the document the issue occurs>",
-      "recommendation": "<specific recommendation to fix the issue>"
-    }
-  ]
-}
-
-Be thorough and identify all accessibility issues related to:
-- Text alternatives for non-text content
-- Adaptable content and meaningful sequence
-- Distinguishable content (contrast, text sizing)
-- Keyboard accessibility
-- Timing and seizure risks
-- Navigable structure (headings, labels, focus)
-- Readable and predictable content
-- Input assistance and error handling
-- Compatible markup
-
-Return ONLY the JSON object, no additional text or markdown formatting.`;
+const providers = require('./providers');
 
 module.exports = async function handler(req, res) {
   // Only allow POST
@@ -43,17 +8,15 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const { text, filename, apiKey } = req.body;
+    const { text, filename, apiKey, provider, model } = req.body;
 
     if (!apiKey) {
-      return res.status(400).json({ success: false, error: 'API key is required. Please enter your Anthropic API key.' });
+      return res.status(400).json({ success: false, error: 'API key is required. Please enter your API key.' });
     }
 
     if (!text) {
       return res.status(400).json({ success: false, error: 'No text provided for analysis.' });
     }
-
-    const client = new Anthropic({ apiKey: apiKey });
 
     // Cap input at 100K characters
     const cappedText = text.substring(0, 100000);
@@ -65,17 +28,14 @@ Filename: ${filename || 'Unknown'}
 Document text:
 ${cappedText}`;
 
-    const response = await client.messages.create({
-      model: 'claude-opus-4-6',
-      max_tokens: 8192,
-      thinking: { type: 'adaptive' },
-      system: ANALYSIS_SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: userMessage }]
+    var responseText = await providers.callProvider({
+      provider: provider || 'anthropic',
+      model: model || providers.PROVIDER_DEFAULTS[provider || 'anthropic'].model,
+      apiKey: apiKey,
+      systemPrompt: providers.ANALYSIS_SYSTEM_PROMPT,
+      userMessage: userMessage,
+      maxTokens: 8192
     });
-
-    // Extract text from content blocks
-    const textBlocks = response.content.filter(block => block.type === 'text');
-    const responseText = textBlocks.map(block => block.text).join('');
 
     // Parse the JSON response
     let analysis;

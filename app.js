@@ -1032,9 +1032,29 @@
 
     // Provider defaults and new DOM refs
     var PROVIDER_DEFAULTS = {
-      anthropic: { model: 'claude-opus-4-6', label: 'Anthropic', placeholder: 'sk-ant-...' },
-      openai: { model: 'gpt-4o', label: 'OpenAI', placeholder: 'sk-...' },
-      gemini: { model: 'gemini-2.0-flash', label: 'Google Gemini', placeholder: 'AIza...' }
+      anthropic: {
+        model: 'claude-opus-4-6', label: 'Anthropic', placeholder: 'sk-ant-...',
+        models: [
+          { value: 'claude-opus-4-6', label: 'Claude Opus 4.6' },
+          { value: 'claude-sonnet-4-5-20250929', label: 'Claude Sonnet 4.5' },
+          { value: 'claude-haiku-4-5-20251001', label: 'Claude Haiku 4.5' }
+        ]
+      },
+      openai: {
+        model: 'gpt-4o', label: 'OpenAI', placeholder: 'sk-...',
+        models: [
+          { value: 'gpt-4o', label: 'GPT-4o' },
+          { value: 'gpt-4o-mini', label: 'GPT-4o Mini' }
+        ]
+      },
+      gemini: {
+        model: 'gemini-2.5-flash', label: 'Google Gemini', placeholder: 'AIza...',
+        models: [
+          { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
+          { value: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash-Lite' },
+          { value: 'gemini-3-flash-preview', label: 'Gemini 3 Flash (Preview)' }
+        ]
+      }
     };
 
     var providerSelect = $('#analyzer-provider');
@@ -1058,10 +1078,6 @@
         var savedProvider = localStorage.getItem(PROVIDER_STORAGE_KEY);
         if (savedProvider && providerSelect) {
           providerSelect.value = savedProvider;
-        }
-        var savedModel = localStorage.getItem(MODEL_STORAGE_KEY);
-        if (savedModel && modelInput) {
-          modelInput.value = savedModel;
         }
       } catch (e) { /* ignore */ }
     }
@@ -1103,15 +1119,20 @@
         apiKeyInput.value = loadApiKeyForProvider(provider);
       }
 
-      // Update model if it's still showing another provider's default
+      // Populate model dropdown with provider's available models
       if (modelInput) {
-        var currentModel = modelInput.value.trim();
-        var isOtherDefault = Object.keys(PROVIDER_DEFAULTS).some(function(p) {
-          return p !== provider && PROVIDER_DEFAULTS[p].model === currentModel;
+        modelInput.innerHTML = '';
+        (defaults.models || []).forEach(function(m) {
+          var opt = document.createElement('option');
+          opt.value = m.value;
+          opt.textContent = m.label;
+          modelInput.appendChild(opt);
         });
-        if (!currentModel || isOtherDefault) {
-          modelInput.value = defaults.model;
-        }
+        // Restore saved model if it belongs to this provider
+        var savedModel = '';
+        try { savedModel = localStorage.getItem(MODEL_STORAGE_KEY) || ''; } catch (e) { /* ignore */ }
+        var validSaved = (defaults.models || []).some(function(m) { return m.value === savedModel; });
+        modelInput.value = validSaved ? savedModel : defaults.model;
       }
 
       // Save provider choice
@@ -1134,7 +1155,7 @@
 
     // Model change handler — save to localStorage
     if (modelInput) {
-      modelInput.addEventListener('input', function() {
+      modelInput.addEventListener('change', function() {
         try {
           localStorage.setItem(MODEL_STORAGE_KEY, modelInput.value);
         } catch (e) { /* ignore */ }

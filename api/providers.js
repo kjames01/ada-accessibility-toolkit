@@ -1,7 +1,7 @@
 const PROVIDER_DEFAULTS = {
   anthropic: { model: 'claude-opus-4-6', label: 'Anthropic', placeholder: 'sk-ant-...' },
   openai: { model: 'gpt-4o', label: 'OpenAI', placeholder: 'sk-...' },
-  gemini: { model: 'gemini-2.0-flash', label: 'Google Gemini', placeholder: 'AIza...' }
+  gemini: { model: 'gemini-2.5-flash', label: 'Google Gemini', placeholder: 'AIza...' }
 };
 
 const ANALYSIS_SYSTEM_PROMPT = `You are an expert ADA compliance and WCAG 2.1 accessibility auditor. Analyze the provided document text for accessibility issues.
@@ -61,41 +61,69 @@ Requirements for the output HTML:
 
 Return ONLY the complete HTML document, no additional explanation or markdown formatting.`;
 
+function formatProviderError(provider, error) {
+  var status = error.status || error.statusCode || (error.response && error.response.status);
+  var label = PROVIDER_DEFAULTS[provider] ? PROVIDER_DEFAULTS[provider].label : provider;
+
+  if (status === 401 || status === 403) {
+    return label + ': Invalid API key. Please check that your key is correct and active.';
+  }
+
+  if (status === 404) {
+    var modelHint = error.message && error.message.match(/model/i) ? ' The model you selected may not be available on your account.' : '';
+    return label + ': Resource not found.' + modelHint + ' Please verify the model name is correct.';
+  }
+
+  if (status === 429) {
+    var msg = (error.message || '').toLowerCase();
+    if (msg.indexOf('quota') !== -1 || msg.indexOf('limit: 0') !== -1 || msg.indexOf('billing') !== -1) {
+      return label + ': Your API quota is exhausted or your plan does not include access to this model. Please check your billing settings and plan details at your provider\'s dashboard.';
+    }
+    return label + ': Rate limit exceeded. Please wait a moment and try again, or check your plan\'s rate limits.';
+  }
+
+  return label + ': ' + (error.message || 'An unexpected error occurred.');
+}
+
 async function callProvider({ provider, model, apiKey, systemPrompt, userMessage, maxTokens }) {
-  if (provider === 'anthropic') {
-    const Anthropic = require('@anthropic-ai/sdk');
-    const client = new Anthropic({ apiKey: apiKey });
-    const response = await client.messages.create({
-      model: model,
-      max_tokens: maxTokens,
-      thinking: { type: 'adaptive' },
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userMessage }]
-    });
-    return response.content.filter(b => b.type === 'text').map(b => b.text).join('');
-  } else if (provider === 'openai') {
-    const OpenAI = require('openai');
-    const client = new OpenAI({ apiKey: apiKey });
-    const response = await client.chat.completions.create({
-      model: model,
-      max_completion_tokens: maxTokens,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userMessage }
-      ]
-    });
-    return response.choices[0].message.content;
-  } else if (provider === 'gemini') {
-    const { GoogleGenerativeAI } = require('@google/generative-ai');
-    const ai = new GoogleGenerativeAI(apiKey);
-    const genModel = ai.getGenerativeModel({ model: model, systemInstruction: systemPrompt });
-    const result = await genModel.generateContent({
-      contents: [{ role: 'user', parts: [{ text: userMessage }] }],
-      generationConfig: { maxOutputTokens: maxTokens }
-    });
-    return result.response.text();
-  } else {
-    throw new Error('Unknown provider: ' + provider);
+  try {
+    if (provider === 'anthropic') {
+      var Anthropic = require('@anthropic-ai/sdk');
+      var client = new Anthropic({ apiKey: apiKey });
+      var response = await client.messages.create({
+        model: model,
+        max_tokens: maxTokens,
+        thinking: { type: 'adaptive' },
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userMessage }]
+      });
+      return response.content.filter(function(b) { return b.type === 'text'; }).map(function(b) { return b.text; }).join('');
+    } else if (provider === 'openai') {
+      var OpenAI = require('openai');
+      var client = new OpenAI({ apiKey: apiKey });
+      var response = await client.chat.completions.create({
+        model: model,
+        max_completion_tokens: maxTokens,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userMessage }
+        ]
+      });
+      return response.choices[0].message.content;
+    } else if (provider === 'gemini') {
+      var GoogleGenerativeAI = require('@google/generative-ai').GoogleGenerativeAI;
+      var ai = new GoogleGenerativeAI(apiKey);
+      var genModel = ai.getGenerativeModel({ model: model, systemInstruction: systemPrompt });
+      var result = await genModel.generateContent({
+        contents: [{ role: 'user', parts: [{ text: userMessage }] }],
+        generationConfig: { maxOutputTokens: maxTokens }
+      });
+      return result.response.text();
+    } else {
+      throw new Error('Unknown provider: ' + provider);
+    }
+  } catch (error) {
+    throw new Error(formatProviderError(provider, error));
   }
 }
 

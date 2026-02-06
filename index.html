@@ -399,8 +399,10 @@
               </div>
               <div class="input-group">
                 <label for="analyzer-model" class="input-label">Model</label>
-                <input type="text" id="analyzer-model" class="text-input" value="claude-opus-4-6" placeholder="claude-opus-4-6" aria-describedby="model-hint">
-                <span id="model-hint" class="input-hint">Default model for selected provider. You can override.</span>
+                <select id="analyzer-model" class="select-input" aria-describedby="model-hint">
+                  <option value="claude-opus-4-6">Claude Opus 4.6</option>
+                </select>
+                <span id="model-hint" class="input-hint">Available models for selected provider.</span>
               </div>
             </div>
             <div class="input-group" style="margin-top: var(--space-md);">

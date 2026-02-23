@@ -79,6 +79,12 @@
             <span>Resources</span>
           </button>
         </li>
+        <li>
+          <button class="nav-btn" data-page="guide">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span>User Guide</span>
+          </button>
+        </li>
       </ul>
     </nav>
 
@@ -134,6 +140,14 @@
             </div>
             <h3>PDF File Analyzer</h3>
             <p id="card-analyzer-desc">Drag and drop PDF files to analyze ADA compliance and generate accessible HTML alternatives.</p>
+          </button>
+
+          <button class="dashboard-card" data-goto="guide" aria-describedby="card-guide-desc">
+            <div class="card-icon card-icon--guide">
+              <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <h3>User Guide</h3>
+            <p id="card-guide-desc">Step-by-step instructions for each tool, tips, and best practices for accessibility testing.</p>
           </button>
         </div>
 
@@ -559,6 +573,231 @@
                 <tr><td><code>progressbar</code></td><td>Displays task progress</td><td>Loading indicators</td></tr>
               </tbody>
             </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- User Guide Page -->
+      <section id="page-guide" class="page" aria-labelledby="guide-heading" hidden>
+        <h2 id="guide-heading" class="page-title">User Guide</h2>
+        <p class="page-subtitle">Learn how to use each tool in the ADA Accessibility Toolkit.</p>
+
+        <!-- Getting Started -->
+        <div class="guide-section">
+          <h3>Getting Started</h3>
+          <p>The ADA Accessibility Toolkit provides a suite of client-side tools for evaluating and improving the accessibility of your web content. All tools run entirely in your browser — no data is sent to external servers (except the File Analyzer, which calls an AI API you configure).</p>
+          <div class="guide-steps">
+            <div class="guide-step">
+              <span class="guide-step-number">1</span>
+              <div>
+                <strong>Choose a tool</strong>
+                <p>Use the sidebar navigation or dashboard cards to open any tool.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <span class="guide-step-number">2</span>
+              <div>
+                <strong>Enter your content</strong>
+                <p>Provide colors, HTML, typography values, or upload a PDF depending on the tool.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <span class="guide-step-number">3</span>
+              <div>
+                <strong>Review results</strong>
+                <p>Each tool provides immediate feedback with pass/fail indicators and actionable suggestions.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Color Contrast Checker Guide -->
+        <div class="guide-section">
+          <h3>Color Contrast Checker</h3>
+          <p>Test whether your foreground and background color combinations meet WCAG contrast requirements.</p>
+          <div class="guide-steps">
+            <div class="guide-step">
+              <span class="guide-step-number">1</span>
+              <div>
+                <strong>Enter foreground and background colors</strong>
+                <p>Use the color pickers or type hex values (e.g. <code>#333333</code>), RGB values (e.g. <code>rgb(51,51,51)</code>), or named colors (e.g. <code>navy</code>).</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <span class="guide-step-number">2</span>
+              <div>
+                <strong>Read the contrast ratio</strong>
+                <p>The ratio is calculated automatically. A higher ratio means better contrast.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <span class="guide-step-number">3</span>
+              <div>
+                <strong>Check WCAG compliance levels</strong>
+                <p><strong>AA Normal Text</strong> requires 4.5:1. <strong>AA Large Text</strong> requires 3:1. <strong>AAA Normal Text</strong> requires 7:1. <strong>AAA Large Text</strong> requires 4.5:1. Large text is 18pt+ (or 14pt+ bold).</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <span class="guide-step-number">4</span>
+              <div>
+                <strong>Use suggested alternatives</strong>
+                <p>If your combination fails, the tool suggests nearby colors that pass. Click a suggestion to apply it.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HTML Validator Guide -->
+        <div class="guide-section">
+          <h3>HTML Accessibility Validator</h3>
+          <p>Paste HTML code to detect common accessibility issues like missing alt text, form labels, and ARIA problems.</p>
+          <div class="guide-steps">
+            <div class="guide-step">
+              <span class="guide-step-number">1</span>
+              <div>
+                <strong>Paste your HTML</strong>
+                <p>Enter a full HTML document or a code snippet into the text area. Use "Load Sample" to try a demo.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <span class="guide-step-number">2</span>
+              <div>
+                <strong>Click Validate</strong>
+                <p>The validator scans your markup for accessibility issues and returns results immediately.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <span class="guide-step-number">3</span>
+              <div>
+                <strong>Interpret results</strong>
+                <p><strong>Errors</strong> (red) are critical issues that must be fixed. <strong>Warnings</strong> (yellow) are likely problems. <strong>Info</strong> (blue) are best-practice suggestions. Each result shows the problematic element and a description of the issue.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WCAG Checklist Guide -->
+        <div class="guide-section">
+          <h3>WCAG 2.1 Checklist</h3>
+          <p>Track your compliance against all WCAG 2.1 Level A and AA success criteria.</p>
+          <div class="guide-steps">
+            <div class="guide-step">
+              <span class="guide-step-number">1</span>
+              <div>
+                <strong>Review criteria by category</strong>
+                <p>Criteria are organized under Perceivable, Operable, Understandable, and Robust principles.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <span class="guide-step-number">2</span>
+              <div>
+                <strong>Check off completed items</strong>
+                <p>Click the checkbox next to each criterion as you verify compliance. The progress bar tracks your completion.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <span class="guide-step-number">3</span>
+              <div>
+                <strong>Filter by level or status</strong>
+                <p>Use the dropdown filters to show only Level A, Level AA, completed, or unchecked criteria.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Typography Checker Guide -->
+        <div class="guide-section">
+          <h3>Typography Checker</h3>
+          <p>Evaluate font sizes, line heights, and spacing against WCAG 1.4.12 (Text Spacing) requirements.</p>
+          <div class="guide-steps">
+            <div class="guide-step">
+              <span class="guide-step-number">1</span>
+              <div>
+                <strong>Enter your typography values</strong>
+                <p>Set the font size, line height, letter spacing, word spacing, paragraph spacing, font family, and max line width.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <span class="guide-step-number">2</span>
+              <div>
+                <strong>Review compliance results</strong>
+                <p>Each metric shows a pass/fail indicator. Recommended minimums: 16px font size, 1.5 line height, 0.12em letter spacing, 0.16em word spacing.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <span class="guide-step-number">3</span>
+              <div>
+                <strong>Preview live text</strong>
+                <p>The preview panel updates in real time so you can see how your settings affect readability.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- File Analyzer Guide -->
+        <div class="guide-section">
+          <h3>PDF File Analyzer</h3>
+          <p>Upload a PDF to analyze its ADA compliance and optionally generate an accessible HTML alternative.</p>
+          <div class="guide-steps">
+            <div class="guide-step">
+              <span class="guide-step-number">1</span>
+              <div>
+                <strong>Configure your AI provider</strong>
+                <p>Select a provider (Anthropic, OpenAI, or Google Gemini), choose a model, and enter your API key. Your key is stored locally and sent directly to the API.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <span class="guide-step-number">2</span>
+              <div>
+                <strong>Upload a PDF</strong>
+                <p>Drag and drop a PDF into the drop zone, or click to browse. The file is read locally in your browser.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <span class="guide-step-number">3</span>
+              <div>
+                <strong>Analyze for compliance</strong>
+                <p>Click "Analyze for ADA Compliance" to send the document to the AI for review. Results are categorized as errors, warnings, and info.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <span class="guide-step-number">4</span>
+              <div>
+                <strong>Generate accessible HTML</strong>
+                <p>After analysis, you can generate a fully accessible HTML version of the document. Preview it in rendered or source view, then download or copy it.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tips & Best Practices -->
+        <div class="guide-section">
+          <h3>Tips &amp; Best Practices</h3>
+          <div class="guide-tips-grid">
+            <div class="guide-tip">
+              <strong>Test early and often</strong>
+              <p>Run accessibility checks during development, not just before launch. Fixing issues early is faster and cheaper.</p>
+            </div>
+            <div class="guide-tip">
+              <strong>Use semantic HTML</strong>
+              <p>Proper heading hierarchy, landmark roles, and native form elements reduce the need for ARIA attributes.</p>
+            </div>
+            <div class="guide-tip">
+              <strong>Don't rely on color alone</strong>
+              <p>Always pair color with text labels, icons, or patterns so information is accessible to colorblind users.</p>
+            </div>
+            <div class="guide-tip">
+              <strong>Test with keyboard navigation</strong>
+              <p>Ensure all interactive elements are reachable and operable using only the keyboard (Tab, Enter, Escape).</p>
+            </div>
+            <div class="guide-tip">
+              <strong>Provide text alternatives</strong>
+              <p>Every image needs alt text. Every video needs captions. Every audio clip needs a transcript.</p>
+            </div>
+            <div class="guide-tip">
+              <strong>Keep forms accessible</strong>
+              <p>Label every input, group related fields with fieldsets, and provide clear error messages tied to the relevant field.</p>
+            </div>
           </div>
         </div>
       </section>

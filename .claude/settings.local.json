@@ -1,0 +1,23 @@
+{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:www.anthropic.com)",
+      "Bash(vercel --version:*)",
+      "Bash(npm install:*)",
+      "Bash(dir:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd multi-AI provider support \\(OpenAI, Anthropic, Google Gemini\\)\n\nThe PDF File Analyzer now supports 3 AI providers instead of only\nAnthropic. Users can select their provider, override the model, and\nAPI keys are stored per-provider in localStorage.\n\n- Create api/providers.js with shared callProvider\\(\\), system prompts,\n  and PROVIDER_DEFAULTS \\(eliminates 3x prompt duplication\\)\n- Update api/analyze.js, api/generate.js, server/server.js to use\n  the shared provider module with provider/model from request body\n- Add provider dropdown, model input, and dynamic API key label to\n  the File Analyzer UI \\(index.html, styles.css\\)\n- Add per-provider key storage with legacy fallback and dynamic UI\n  updates on provider switch \\(app.js\\)\n- Install openai and @google/generative-ai dependencies\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(npm ls:*)",
+      "Bash(node -e:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nFix OpenAI provider compatibility and improve error messages\n\nUse max_completion_tokens instead of deprecated max_tokens for newer\nOpenAI models \\(GPT-5.2+\\), update openai SDK to v6, and surface actual\nserver error messages in the frontend instead of generic failures.\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "WebFetch(domain:ai.google.dev)",
+      "WebFetch(domain:discuss.ai.google.dev)"
+    ]
+  }
+}
